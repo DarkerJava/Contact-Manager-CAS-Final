@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Contact Manager CAS 2:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Contact_Manager_CAS_2_jar</output-path>
+    <root id="archive" name="Contact Manager CAS 2.jar">
+      <element id="module-output" name="Contact Manager CAS 2" />
+    </root>
+  </artifact>
+</component>
