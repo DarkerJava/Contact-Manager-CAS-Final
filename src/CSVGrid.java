@@ -184,6 +184,9 @@ class CSVGrid extends JScrollPane {
 
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 constraints.weightx = 1;
+                if(j < 2){
+                    constraints.weightx = 0.5;
+                }
                 constraints.weighty = 1;
                 constraints.gridx = j + 1;
                 constraints.gridy = i;
