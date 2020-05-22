@@ -1,17 +1,15 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
-import java.io.IOException;
-import javax.swing.border.EmptyBorder;
 
 
 class CSVGrid extends JScrollPane {

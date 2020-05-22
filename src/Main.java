@@ -1,172 +1,133 @@
 //imports required packages
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
-import java.awt.Robot;
-import java.awt.Toolkit;
+
+import org.netbeans.lib.awtextra.AbsoluteConstraints;
+import org.netbeans.lib.awtextra.AbsoluteLayout;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicMenuItemUI;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Date;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollBar;
-import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import javax.swing.plaf.basic.BasicMenuItemUI;
-
-import org.netbeans.lib.awtextra.AbsoluteConstraints;
-import org.netbeans.lib.awtextra.AbsoluteLayout;
 
 public class Main extends javax.swing.JFrame {
-	
-	 	private static final int animDurationMillis = 300;
-	    private static final int frameCount = 8;
-	    private static Boolean endit = true;
 
-	    private static class Fader {
-	        private final Component component;
+    private static final int animDurationMillis = 300;
+    private static final int frameCount = 8;
+    private static Boolean endit = true;
 
-	        private final Color normalBackground;
-	        private final float[] normalRGBA;
-	        private final float[] targetRGBA;
-	        private final float[] rgba = new float[4];
+    private static class Fader {
+        private final Component component;
 
-	        private final Timer timer = new Timer(animDurationMillis / frameCount,
-	            e -> updateBackground());
+        private final Color normalBackground;
+        private final float[] normalRGBA;
+        private final float[] targetRGBA;
+        private final float[] rgba = new float[4];
 
-	        private int frameNumber;
+        private final Timer timer = new Timer(animDurationMillis / frameCount,
+                e -> updateBackground());
 
-	        Fader(Component component2,
-	              Color targetBackground,
-	              Color normalBackground) {
+        private int frameNumber;
 
-	            this.component = Objects.requireNonNull(component2);
-	            this.normalBackground = normalBackground;
-	            this.normalRGBA = normalBackground.getComponents(null);
-	            this.targetRGBA = targetBackground.getComponents(null);
-	        }
+        Fader(Component component2,
+              Color targetBackground,
+              Color normalBackground) {
 
-	        private void updateBackground() {
-	        	component.repaint();
-	            if (++frameNumber > frameCount) {
-	                timer.stop();
-	                return;
-	            }
+            this.component = Objects.requireNonNull(component2);
+            this.normalBackground = normalBackground;
+            this.normalRGBA = normalBackground.getComponents(null);
+            this.targetRGBA = targetBackground.getComponents(null);
+        }
 
-	            for (int i = rgba.length - 1; i >= 0; i--) {
-	                float normal = normalRGBA[i];
-	                float target = targetRGBA[i];
-	                rgba[i] =
-	                    normal + (target - normal) * frameNumber / frameCount;
-	            }
+        private void updateBackground() {
+            component.repaint();
+            if (++frameNumber > frameCount) {
+                timer.stop();
+                return;
+            }
 
-	            component.setBackground(
-	                new Color(rgba[0], rgba[1], rgba[2], rgba[3]));
-	        }
+            for (int i = rgba.length - 1; i >= 0; i--) {
+                float normal = normalRGBA[i];
+                float target = targetRGBA[i];
+                rgba[i] =
+                        normal + (target - normal) * frameNumber / frameCount;
+            }
 
-	        void start() {
-	            frameNumber = 0;
-	            timer.restart();
-	            component.setBackground(normalBackground);
-	        }
+            component.setBackground(
+                    new Color(rgba[0], rgba[1], rgba[2], rgba[3]));
+        }
 
-	        void stop() {
-	            timer.stop();
-	            component.setBackground(normalBackground);
-	        }
-	    }
+        void start() {
+            frameNumber = 0;
+            timer.restart();
+            component.setBackground(normalBackground);
+        }
 
-	    
-		private static Container button;
-		static Boolean stop = false;
-	    void addFadeOnHover(Component component,
-	                               Color targetBackground,
-	                               Color normalBackground, Color clickedBackground) {
-	    	
-	        Fader entryFader =
-	            new Fader(component, targetBackground, normalBackground);
-	        Fader exitFader =
-	            new Fader(component, normalBackground, targetBackground);
-	        stop = false;
-	        component.addMouseListener(new MouseAdapter() {
-	        	
-	            public void mouseEntered(MouseEvent event) {
-	            	
-	                exitFader.stop();
-	                
-	                entryFader.start();
-	                
-	                if (stop) {
-	                return;
-	                }
-	            }
+        void stop() {
+            timer.stop();
+            component.setBackground(normalBackground);
+        }
+    }
 
-	           
-	            public void mouseExited(MouseEvent event) {
-	                entryFader.stop();
-	                exitFader.start();
-	            }
-	            public void mousePressed(MouseEvent events) {
-	            	
-	                component.setBackground(clickedBackground);
-	               
-	            }
-	            public void mouseReleased(MouseEvent s) {
-	            	
-	            	exitFader.stop();
-	            	
-	               
-	               
-	            }
-	            
-	        });
-	    }
+
+    private static Container button;
+    static Boolean stop = false;
+
+    void addFadeOnHover(Component component,
+                        Color targetBackground,
+                        Color normalBackground, Color clickedBackground) {
+
+        Fader entryFader =
+                new Fader(component, targetBackground, normalBackground);
+        Fader exitFader =
+                new Fader(component, normalBackground, targetBackground);
+        stop = false;
+        component.addMouseListener(new MouseAdapter() {
+
+            public void mouseEntered(MouseEvent event) {
+
+                exitFader.stop();
+
+                entryFader.start();
+
+                if (stop) {
+                    return;
+                }
+            }
+
+
+            public void mouseExited(MouseEvent event) {
+                entryFader.stop();
+                exitFader.start();
+            }
+
+            public void mousePressed(MouseEvent events) {
+
+                component.setBackground(clickedBackground);
+
+            }
+
+            public void mouseReleased(MouseEvent s) {
+
+                exitFader.stop();
+
+
+            }
+
+        });
+    }
 
     public Main() {
         initComponents();
-        
+
     }
 
     static Scanner reader = new Scanner(System.in);
@@ -179,7 +140,7 @@ public class Main extends javax.swing.JFrame {
      *input/output:no input, no output (void)
      ***************************/
     private void initComponents() {
-    	 
+
 
         jPanel5 = new JPanel();
         jPopupMenu1 = new JPopupMenu();
@@ -224,60 +185,56 @@ public class Main extends javax.swing.JFrame {
         jLabel11 = new JLabel();
 
         jTextField2 = new JComboBox(Contact.CONTACT_FIELDS);
-       
-        
-        
-     
+
+
         //Everything below was generated by NetBean's Form maker
 
         //background and foregrounds are set
         //jTextField2.setBackground(new Color(211,182,28));
-      
-       //jTextField2.setUI(ColorArrowUI.createUI(jTextField2));
+
+        //jTextField2.setUI(ColorArrowUI.createUI(jTextField2));
         jTextField2.setForeground(Color.BLACK);
         jTextField2.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         //jTextField2.setBackground(new Color(211,182,28));
         jTextField2.setBackground(Color.YELLOW);
-       
-        
-        
+
+
         jPanel5.setBackground(new Color(102, 102, 102));
-        jPanel2.setBackground(new Color(40,51,74)); //main panel
-        
+        jPanel2.setBackground(new Color(40, 51, 74)); //main panel
+
         jLabel1.setForeground(new Color(255, 255, 255));
         jPanel3.setBackground(new Color(226, 226, 226));
-        
-       // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+
+        // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         setBackground(new Color(255, 255, 0));
         jTextField1.setBackground(new Color(228, 228, 228));
         jTextField1.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jPanel2.requestFocusInWindow();
         jTextField1.setEditable(false);
         jTextField1.getCaret().setVisible(false);
-        jTextField1.addMouseListener(new MouseAdapter(){
+        jTextField1.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent a){
-            	jTextField1.setText("");
-            	 jTextField1.setEditable(true);
-            	jTextField1.getCaret().setVisible(true);
+            public void mousePressed(MouseEvent a) {
+                jTextField1.setText("");
+                jTextField1.setEditable(true);
+                jTextField1.getCaret().setVisible(true);
             }
-            
-            
-         
+
+
         });
-        jPanel1.setBackground(new Color(251,222,68)); //headers
-        jPanel8.setBackground(new Color(251,222,68));
-        
+        jPanel1.setBackground(new Color(251, 222, 68)); //headers
+        jPanel8.setBackground(new Color(251, 222, 68));
+
         GroupLayout jPanel5Layout = new GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
                 jPanel5Layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                         
+
         );
         jPanel5Layout.setVerticalGroup(
 
                 jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
         );
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -306,18 +263,18 @@ public class Main extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
                 jPanel3Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addGap(14, 14, 14)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, 350, GroupLayout.PREFERRED_SIZE))
-                               // .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MIN_VALUE))
+                // .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MIN_VALUE))
         );
 
         jPanel3Layout.setVerticalGroup(
                 jPanel3Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addGap(4, 4, 4)
                                 .addGroup(jPanel3Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -332,29 +289,29 @@ public class Main extends javax.swing.JFrame {
         jButton1.setFont(new Font("Lucida Grande", 0, 15));
 
         jButton1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/add.png")));
-        
+
         jButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-      
+
         //jButton3 customized
         jButton3.setFont(new Font("Lucida Grande", 0, 15));
         jButton3.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/edit.png")));
-  
+
         jButton3.setContentAreaFilled(false);
         jButton3.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-     
+
 
         //jButton4 customized
         jButton4.setFont(new Font("Lucida Grande", 0, 15));
         jButton4.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/delete.png")));
-      
+
         jButton4.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -365,8 +322,8 @@ public class Main extends javax.swing.JFrame {
         //jButton9 customized
         jButton9.setFont(new Font("Lucida Grande", 0, 13));
         jButton9.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/save.png")));
-     
-        
+
+
         jButton9.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton9ActionPerformed(evt);
@@ -415,7 +372,7 @@ public class Main extends javax.swing.JFrame {
         //jPanel8.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
 
         jButton2.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/excel.png")));
- 
+
         jButton7.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/close.png")));
 
         jButton2.addActionListener(new ActionListener() {
@@ -456,13 +413,13 @@ public class Main extends javax.swing.JFrame {
         });
 
         //Netbeans generated code
-        
+
         jLabel10.setBorder(BorderFactory.createEmptyBorder(8, 0, 7, 7));
         jLabel11.setBorder(BorderFactory.createEmptyBorder(2, 6, 7, 7));
-       
-        
+
+
         jLabel20.setBorder(BorderFactory.createEmptyBorder(2, 0, 7, 7));
-       
+
         //jButton7.setBorder(BorderFactory.createEmptyBorder(2, 0, 7, 7));
 
 
@@ -471,32 +428,31 @@ public class Main extends javax.swing.JFrame {
         jPanel8Layout.setHorizontalGroup(
                 jPanel8Layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 
-                .addGroup(jPanel8Layout.createSequentialGroup()
-                        //.addContainerGap(30, Short.MAX_VALUE)
-                		
-                        
-                		.addGap(50, 50, 50)
-                        .addComponent(jLabel10)
-                        .addComponent(jButton5, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton6, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel11)
-                        .addComponent(jTextField2, GroupLayout.PREFERRED_SIZE, 114, GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel8Layout.createSequentialGroup()
+                                //.addContainerGap(30, Short.MAX_VALUE)
 
-                        .addGap(30, 30, 30)
 
-                        .addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton3, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton4, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton9, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel20, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton2, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton11, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addGap(50, 50, 50)
+                                .addComponent(jLabel10)
+                                .addComponent(jButton5, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton6, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel11)
+                                .addComponent(jTextField2, GroupLayout.PREFERRED_SIZE, 114, GroupLayout.PREFERRED_SIZE)
 
-                       
+                                .addGap(30, 30, 30)
 
-                        .addComponent(jButton7, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addComponent(jButton12, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton3, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton4, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton9, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel20, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton2, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton11, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+
+
+                                .addComponent(jButton7, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jButton12, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
         );
 
         //Netbeans generated code
@@ -505,7 +461,7 @@ public class Main extends javax.swing.JFrame {
                         .addGroup(jPanel8Layout.createSequentialGroup()
                                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel8Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                		
+
                                         .addComponent(jButton5)
                                         .addComponent(jButton6)
                                         .addComponent(jLabel10)
@@ -522,7 +478,7 @@ public class Main extends javax.swing.JFrame {
                                         .addComponent(jButton12)
                                 ))
         );
-        jPanel8.setMinimumSize(new Dimension(0,0));
+        jPanel8.setMinimumSize(new Dimension(0, 0));
         jLabel10.setText("SORT BY:");
         jLabel10.setFont(new Font("Lucida Grande", Font.BOLD, 13));
         jButton5.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/A-Z.png")));
@@ -537,7 +493,7 @@ public class Main extends javax.swing.JFrame {
         jButton10.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         jButton11.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         jButton9.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-      
+
         jButton12.setContentAreaFilled(false);
         jButton5.setContentAreaFilled(false);
         //listener for the button
@@ -549,8 +505,8 @@ public class Main extends javax.swing.JFrame {
 
         //listener for the button
         jButton6.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/Z-A.png")));
-        
-     
+
+
         jButton6.setContentAreaFilled(false);
         jButton6.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -563,7 +519,7 @@ public class Main extends javax.swing.JFrame {
         jLabel20.setText("   ");
 
         File file = new File(Paths.get("allcontactsvf.csv").toString());
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.createNewFile();
                 PrintWriter writer = new PrintWriter(file);
@@ -574,7 +530,7 @@ public class Main extends javax.swing.JFrame {
                 finalString.append(Contact.CONTACT_FIELDS[Contact.CONTACT_FIELDS.length - 1]).append("\n");
                 writer.println();
                 writer.close();
-            } catch (IOException ioException){
+            } catch (IOException ioException) {
                 System.err.println("Unable to create save file.");
             }
         }
@@ -589,24 +545,22 @@ public class Main extends javax.swing.JFrame {
         grid.getVerticalScrollBar().setUI(new CustomScrollBarUI());
         grid.getHorizontalScrollBar().setUI(new CustomScrollBarUI());
         grid.getVerticalScrollBar().setUnitIncrement(8);
-      
+
         grid.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
         if (dark) {
-        	dark = false;
-        }
-        else {
-        	dark = true;
+            dark = false;
+        } else {
+            dark = true;
         }
         darklightUI();
-        
-        
+
 
         //Netbeans generated code
         GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
                 jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addGroup(jPanel2Layout.createSequentialGroup()
 
 
@@ -629,14 +583,14 @@ public class Main extends javax.swing.JFrame {
                                                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                                         .addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, 870, GroupLayout.PREFERRED_SIZE) //titles
                                                                         .addComponent(grid, GroupLayout.PREFERRED_SIZE, 870, GroupLayout.PREFERRED_SIZE)))) //that should work
-                                                 )))
+                                        )))
         );
 
         //Netbeans generated code
         jPanel2Layout.setVerticalGroup(
 
                 jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(21, 21, 21)
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
@@ -644,9 +598,9 @@ public class Main extends javax.swing.JFrame {
                                         .addComponent(jLabel1))
                                 .addGap(18, 18, 18)
                                 .addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-                               
+
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                      //  .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        //  .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(grid, GroupLayout.PREFERRED_SIZE, 402, GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -659,13 +613,13 @@ public class Main extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addComponent(jPanel2, GroupLayout.PREFERRED_SIZE, 883, GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
 
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                         
+
                         .addComponent(jPanel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -673,10 +627,10 @@ public class Main extends javax.swing.JFrame {
     }
 
     public static void main(String args[]) {
-    	
-    	SplashScreen splash = new SplashScreen(2000);
 
-       
+        SplashScreen splash = new SplashScreen(2000);
+
+
         splash.showSplash();
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -685,14 +639,14 @@ public class Main extends javax.swing.JFrame {
          */
         try {
 
-            for (javax.swing.UIManager.LookAndFeelInfo info: javax.swing.UIManager.getInstalledLookAndFeels()) {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException | InstantiationException  | IllegalAccessException | UnsupportedLookAndFeelException c) {
-        	System.out.println("Look and Feel broken");
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException c) {
+            System.out.println("Look and Feel broken");
         }
 
 
@@ -705,6 +659,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
     }
+
 
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -761,8 +716,9 @@ public class Main extends javax.swing.JFrame {
         String searchTerm = jTextField1.getText();
         //sends the string to the method "searches" in CSVGrid
         grid.searches(searchTerm);
-        
+
     }
+
     /**********
      *name: jButton1ActionPerformed
      *description: when the add button is pressed, this method calls other methods from the CSVGrid class to add extra fields
@@ -787,13 +743,13 @@ public class Main extends javax.swing.JFrame {
         //calls the method that deletes selected contacts
         grid.deleteSelectedContacts();
     }
+
     /**********
      *name: jButton9ActionPerformed
      *description: when the delete button is pressed, this method calls the save method in CSVGrid to save the contacts
      *input/output: input is the event of enter occuring, no output (void)
      ***************************/
-    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt)
-    {
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {
         //saves the grid by calling the method "save" in CSVGrid
         grid.save();
     }
@@ -821,287 +777,289 @@ public class Main extends javax.swing.JFrame {
         //calls the sort method in CSVGrid and the methods input is the string selected and 1, because the user is sorting from A-Z
         grid.sort(selected, 1);
     }
-    static int repeat = 0;
-    private void jButton11ActionPerformed(ActionEvent evt) {
-    	stop = true;
-    	repeat = 0;
-    	
-    	refresh();
 
-  
+    static int repeat = 0;
+
+    private void jButton11ActionPerformed(ActionEvent evt) {
+        stop = true;
+        repeat = 0;
+
+        refresh();
+
+
     }
-    
-    
+
+
     static int TIMER_DELAY = 1;
 
     static Timer timer;
-    
+
     private void refresh() {
-    	
-    	SwingUtilities.invokeLater(() -> jPanel1.setVisible(false));
-    	
-    	SwingUtilities.invokeLater(() -> jPanel2.setVisible(false));
-    	SwingUtilities.invokeLater(() -> jPanel3.setVisible(false));
-    	SwingUtilities.invokeLater(() -> jPanel5.setVisible(false));
-    	SwingUtilities.invokeLater(() -> jPanel8.setVisible(false));
- 
-		this.getContentPane().remove(jPanel1);
-		this.getContentPane().remove(jPanel2);
-		this.getContentPane().remove(jPanel3);
-		this.getContentPane().remove(jPanel5);
-		this.getContentPane().remove(jPanel8);
-		initComponents();
-		darklightUI();
-		SwingUtilities.invokeLater(() -> jPanel1.setVisible(true));
-		
-    	SwingUtilities.invokeLater(() -> jPanel2.setVisible(true));
-    	SwingUtilities.invokeLater(() -> jPanel3.setVisible(true));
-    	SwingUtilities.invokeLater(() -> jPanel5.setVisible(true));
-    	SwingUtilities.invokeLater(() -> jPanel8.setVisible(true));
-	
+
+        SwingUtilities.invokeLater(() -> jPanel1.setVisible(false));
+
+        SwingUtilities.invokeLater(() -> jPanel2.setVisible(false));
+        SwingUtilities.invokeLater(() -> jPanel3.setVisible(false));
+        SwingUtilities.invokeLater(() -> jPanel5.setVisible(false));
+        SwingUtilities.invokeLater(() -> jPanel8.setVisible(false));
+
+        this.getContentPane().remove(jPanel1);
+        this.getContentPane().remove(jPanel2);
+        this.getContentPane().remove(jPanel3);
+        this.getContentPane().remove(jPanel5);
+        this.getContentPane().remove(jPanel8);
+        initComponents();
+        darklightUI();
+        SwingUtilities.invokeLater(() -> jPanel1.setVisible(true));
+
+        SwingUtilities.invokeLater(() -> jPanel2.setVisible(true));
+        SwingUtilities.invokeLater(() -> jPanel3.setVisible(true));
+        SwingUtilities.invokeLater(() -> jPanel5.setVisible(true));
+        SwingUtilities.invokeLater(() -> jPanel8.setVisible(true));
+
     }
-    
+
     private void darklightUI() {
-    	
-    	 if (dark) {
-    		 
-             
-             jButton1.setBackground(new Color(251,222,68));
-             jButton2.setBackground(new Color(251,222,68));
-             jButton3.setBackground(new Color(251,222,68));
-             jButton4.setBackground(new Color(251,222,68));
-             jButton5.setBackground(new Color(251,222,68));
-             jButton6.setBackground(new Color(251,222,68));
-             jButton7.setBackground(new Color(251,222,68));
-             jButton9.setBackground(new Color(251,222,68));
-             jButton10.setBackground(new Color(251,222,68));
-             jButton11.setBackground(new Color(251,222,68));
-             jTextField2.setBackground(new Color(251, 222, 68));
-             //jTextField2.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-             jTextField2.setForeground(Color.red);
-             //jTextField2.setContentAreaFilled(false);
-             jPanel5.setBackground(new Color(102, 102, 102));
-             jPanel2.setBackground(new Color(40, 51, 74)); //main panel
-             jPanel2.setForeground(new Color(102, 102, 102));
-             jLabel1.setForeground(new Color(255, 255, 255));
-             jPanel3.setBackground(new Color(226, 226, 226));
-             jPanel3.setForeground(new Color(240, 240, 240));
-             jPanel3.setForeground(new Color(240, 240, 240));
-             // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-             setBackground(new Color(255, 255, 0));
-             jTextField1.setBackground(new Color(228, 228, 228));
+        if (dark) {
 
-             jPanel1.setBackground(new Color(251, 222, 68)); //headers
 
-             jPanel8.setBackground(new Color(251, 222, 68));
-             grid.setBackground2(Color.white);
+            jButton1.setBackground(new Color(251, 222, 68));
+            jButton2.setBackground(new Color(251, 222, 68));
+            jButton3.setBackground(new Color(251, 222, 68));
+            jButton4.setBackground(new Color(251, 222, 68));
+            jButton5.setBackground(new Color(251, 222, 68));
+            jButton6.setBackground(new Color(251, 222, 68));
+            jButton7.setBackground(new Color(251, 222, 68));
+            jButton9.setBackground(new Color(251, 222, 68));
+            jButton10.setBackground(new Color(251, 222, 68));
+            jButton11.setBackground(new Color(251, 222, 68));
+            jTextField2.setBackground(new Color(251, 222, 68));
+            //jTextField2.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-             grid.setBackground2(new Color(225, 225, 225)); //
-             grid.setLabelColour(new Color(0,0,0));
-             grid.setFieldBackground(new Color(255,255,255));
-             grid.setFieldTextColor(new Color(0,0,0));
-             grid.setHighlightColor(new Color(133, 133, 133));
-             grid.setHighlightLabelColor(new Color(255,255,255));
-             grid.setCheckboxSelectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/checked.png")));
-             grid.setCheckboxDeselectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/unchecked.png")));
-             
-             Color foreground = new Color(255,242,88); //pressed
-             Color background = new Color(251,222,68); //Start color
-             Color highlight = new Color(221,192,38); //user on button
-             
-             
-             BasicMenuItemUI ui = new BasicMenuItemUI() {
-                 {
-                     selectionForeground = foreground;
-                     selectionBackground = background;
-                 }
+            jTextField2.setForeground(Color.red);
+            //jTextField2.setContentAreaFilled(false);
+            jPanel5.setBackground(new Color(102, 102, 102));
+            jPanel2.setBackground(new Color(40, 51, 74)); //main panel
+            jPanel2.setForeground(new Color(102, 102, 102));
+            jLabel1.setForeground(new Color(255, 255, 255));
+            jPanel3.setBackground(new Color(226, 226, 226));
+            jPanel3.setForeground(new Color(240, 240, 240));
+            jPanel3.setForeground(new Color(240, 240, 240));
+            // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+            setBackground(new Color(255, 255, 0));
+            jTextField1.setBackground(new Color(228, 228, 228));
 
-              
-                 public void paintBackground(Graphics g,
-                                             JMenuItem item,
-                                             Color background) {
-                     super.paintBackground(g, item, item.getBackground());
-                 }
-             };
-             
-                 AbstractButton b = (AbstractButton) jButton1;
-                 b.setContentAreaFilled(false);
-                 b.setOpaque(true);
-                 
-                 AbstractButton c = (AbstractButton) jButton2;
-                 c.setContentAreaFilled(false);
-                 c.setOpaque(true);
-                 
-                 AbstractButton d = (AbstractButton) jButton3;
-                 d.setContentAreaFilled(false);
-                 d.setOpaque(true);
-                 
-                 AbstractButton e = (AbstractButton) jButton4;
-                 e.setContentAreaFilled(false);
-                 e.setOpaque(true);
-                 
-                 AbstractButton f = (AbstractButton) jButton5;
-                 f.setContentAreaFilled(false);
-                 f.setOpaque(true);
-                 
-                 AbstractButton g = (AbstractButton) jButton6;
-                 g.setContentAreaFilled(false);
-                 g.setOpaque(true);
-                 
-                 AbstractButton h = (AbstractButton) jButton7;
-                 h.setContentAreaFilled(false);
-                 h.setOpaque(true);
-                 
-                 AbstractButton i = (AbstractButton) jButton9;
-                 i.setContentAreaFilled(false);
-                 i.setOpaque(true);
-                 
-                 AbstractButton j = (AbstractButton) jButton9;
-                 j.setContentAreaFilled(false);
-                 j.setOpaque(true);
-                 
-                 AbstractButton k = (AbstractButton) jButton10;
-                 k.setContentAreaFilled(false);
-                 k.setOpaque(true);
+            jPanel1.setBackground(new Color(251, 222, 68)); //headers
 
-                 AbstractButton l = (AbstractButton) jButton11;
-                 l.setContentAreaFilled(false);
-                 l.setOpaque(true);
+            jPanel8.setBackground(new Color(251, 222, 68));
+            grid.setBackground2(Color.white);
 
-                 addFadeOnHover(jButton1, highlight, background, foreground);
-                 addFadeOnHover(jButton2, highlight, background, foreground);
-                 addFadeOnHover(jButton3, highlight, background, foreground);
-                 addFadeOnHover(jButton4, highlight, background, foreground);
-                 addFadeOnHover(jButton5, highlight, background, foreground);
-                 addFadeOnHover(jButton6, highlight, background, foreground);
-                 addFadeOnHover(jButton7, highlight, background, foreground);
-                 addFadeOnHover(jButton9, highlight, background, foreground);
-                 addFadeOnHover(jButton10, highlight, background, foreground);
-                 addFadeOnHover(jButton11, highlight, background, foreground);
-                 grid.setFieldEditTextColor(new Color(209, 10, 10));
-         } else {
-        	 grid.setCheckboxSelectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/checked_dark.png")));
-             grid.setCheckboxDeselectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/unchecked_dark.png")));
-             
-             jButton1.setBackground(new Color(103, 116, 219));
-             jButton2.setBackground(new Color(103, 116, 219));
-             jButton3.setBackground(new Color(103, 116, 219));
-             jButton4.setBackground(new Color(103, 116, 219));
-             jButton5.setBackground(new Color(103, 116, 219));
-             jButton6.setBackground(new Color(103, 116, 219));
-             jButton7.setBackground(new Color(103, 116, 219));
-             jButton9.setBackground(new Color(103, 116, 219));
-             jButton10.setBackground(new Color(103, 116, 219));
-             jButton11.setBackground(new Color(103, 116, 219));
-             jTextField2.setBackground(new Color(100, 100, 100));
-             //jTextField2.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-             grid.setFieldEditTextColor(new Color(255, 115, 115));
-             
-             //jTextField2.setContentAreaFilled(false);
-             jPanel5.setBackground(new Color(187, 111, 66));
-             jPanel2.setBackground(new Color(33, 33, 33)); //main panel
-             jPanel2.setForeground(new Color(102, 102, 102));
-             jLabel1.setForeground(new Color(205, 205, 205));
-             jPanel3.setBackground(Color.DARK_GRAY);
-             
-             // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-             setBackground(new Color(255, 255, 0));
-             jTextField1.setBackground(Color.DARK_GRAY);
-             jTextField1.setForeground(new Color(170, 170, 170));
-             jPanel1.setBackground(new Color(103, 116, 219)); //headers
+            grid.setBackground2(new Color(225, 225, 225)); //
+            grid.setLabelColour(new Color(0, 0, 0));
+            grid.setFieldBackground(new Color(255, 255, 255));
+            grid.setFieldTextColor(new Color(0, 0, 0));
+            grid.setHighlightColor(new Color(133, 133, 133));
+            grid.setHighlightLabelColor(new Color(255, 255, 255));
+            grid.setCheckboxSelectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/checked.png")));
+            grid.setCheckboxDeselectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/unchecked.png")));
 
-             jPanel8.setBackground(new Color(103, 116, 219));
+            Color foreground = new Color(255, 242, 88); //pressed
+            Color background = new Color(251, 222, 68); //Start color
+            Color highlight = new Color(221, 192, 38); //user on button
+
+
+            BasicMenuItemUI ui = new BasicMenuItemUI() {
+                {
+                    selectionForeground = foreground;
+                    selectionBackground = background;
+                }
+
+
+                public void paintBackground(Graphics g,
+                                            JMenuItem item,
+                                            Color background) {
+                    super.paintBackground(g, item, item.getBackground());
+                }
+            };
+
+            AbstractButton b = (AbstractButton) jButton1;
+            b.setContentAreaFilled(false);
+            b.setOpaque(true);
+
+            AbstractButton c = (AbstractButton) jButton2;
+            c.setContentAreaFilled(false);
+            c.setOpaque(true);
+
+            AbstractButton d = (AbstractButton) jButton3;
+            d.setContentAreaFilled(false);
+            d.setOpaque(true);
+
+            AbstractButton e = (AbstractButton) jButton4;
+            e.setContentAreaFilled(false);
+            e.setOpaque(true);
+
+            AbstractButton f = (AbstractButton) jButton5;
+            f.setContentAreaFilled(false);
+            f.setOpaque(true);
+
+            AbstractButton g = (AbstractButton) jButton6;
+            g.setContentAreaFilled(false);
+            g.setOpaque(true);
+
+            AbstractButton h = (AbstractButton) jButton7;
+            h.setContentAreaFilled(false);
+            h.setOpaque(true);
+
+            AbstractButton i = (AbstractButton) jButton9;
+            i.setContentAreaFilled(false);
+            i.setOpaque(true);
+
+            AbstractButton j = (AbstractButton) jButton9;
+            j.setContentAreaFilled(false);
+            j.setOpaque(true);
+
+            AbstractButton k = (AbstractButton) jButton10;
+            k.setContentAreaFilled(false);
+            k.setOpaque(true);
+
+            AbstractButton l = (AbstractButton) jButton11;
+            l.setContentAreaFilled(false);
+            l.setOpaque(true);
+
+            addFadeOnHover(jButton1, highlight, background, foreground);
+            addFadeOnHover(jButton2, highlight, background, foreground);
+            addFadeOnHover(jButton3, highlight, background, foreground);
+            addFadeOnHover(jButton4, highlight, background, foreground);
+            addFadeOnHover(jButton5, highlight, background, foreground);
+            addFadeOnHover(jButton6, highlight, background, foreground);
+            addFadeOnHover(jButton7, highlight, background, foreground);
+            addFadeOnHover(jButton9, highlight, background, foreground);
+            addFadeOnHover(jButton10, highlight, background, foreground);
+            addFadeOnHover(jButton11, highlight, background, foreground);
+            grid.setFieldEditTextColor(new Color(209, 10, 10));
+        } else {
+            grid.setCheckboxSelectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/checked_dark.png")));
+            grid.setCheckboxDeselectedIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/unchecked_dark.png")));
+
+            jButton1.setBackground(new Color(103, 116, 219));
+            jButton2.setBackground(new Color(103, 116, 219));
+            jButton3.setBackground(new Color(103, 116, 219));
+            jButton4.setBackground(new Color(103, 116, 219));
+            jButton5.setBackground(new Color(103, 116, 219));
+            jButton6.setBackground(new Color(103, 116, 219));
+            jButton7.setBackground(new Color(103, 116, 219));
+            jButton9.setBackground(new Color(103, 116, 219));
+            jButton10.setBackground(new Color(103, 116, 219));
+            jButton11.setBackground(new Color(103, 116, 219));
+            jTextField2.setBackground(new Color(100, 100, 100));
+            //jTextField2.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+            grid.setFieldEditTextColor(new Color(255, 115, 115));
+
+            //jTextField2.setContentAreaFilled(false);
+            jPanel5.setBackground(new Color(187, 111, 66));
+            jPanel2.setBackground(new Color(33, 33, 33)); //main panel
+            jPanel2.setForeground(new Color(102, 102, 102));
+            jLabel1.setForeground(new Color(205, 205, 205));
+            jPanel3.setBackground(Color.DARK_GRAY);
+
+            // jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+            setBackground(new Color(255, 255, 0));
+            jTextField1.setBackground(Color.DARK_GRAY);
+            jTextField1.setForeground(new Color(170, 170, 170));
+            jPanel1.setBackground(new Color(103, 116, 219)); //headers
+
+            jPanel8.setBackground(new Color(103, 116, 219));
 
             grid.setBackground2(Color.decode("#3C3F41"));
             grid.setLabelColour(Color.decode("#CCCCCC"));
-             grid.setFieldBackground(new Color(69, 73, 74));
+            grid.setFieldBackground(new Color(69, 73, 74));
             grid.setFieldTextColor(Color.decode("#CCCCCC"));
-             grid.setHighlightColor(new Color(31, 31, 31));
-             grid.setHighlightLabelColor(new Color(212, 212, 212));
-             
-             Color foreground = new Color(133, 146, 249); //pressed
-             Color background = new Color(103, 116, 219); //Start color
-             Color highlight = new Color(83, 96, 199); //user on button
-             
-             
-             
-             BasicMenuItemUI ui = new BasicMenuItemUI() {
-                 {
-                     selectionForeground = foreground;
-                     selectionBackground = background;
-                 }
+            grid.setHighlightColor(new Color(31, 31, 31));
+            grid.setHighlightLabelColor(new Color(212, 212, 212));
 
-              
-                 public void paintBackground(Graphics g,
-                                             JMenuItem item,
-                                             Color background) {
-                     super.paintBackground(g, item, item.getBackground());
-                 }
-             };
-             
-                 AbstractButton b = (AbstractButton) jButton1;
-                 b.setContentAreaFilled(false);
-                 b.setOpaque(true);
-                 
-                 AbstractButton c = (AbstractButton) jButton2;
-                 c.setContentAreaFilled(false);
-                 c.setOpaque(true);
-                 
-                 AbstractButton d = (AbstractButton) jButton3;
-                 d.setContentAreaFilled(false);
-                 d.setOpaque(true);
-                 
-                 AbstractButton e = (AbstractButton) jButton4;
-                 e.setContentAreaFilled(false);
-                 e.setOpaque(true);
-                 
-                 AbstractButton f = (AbstractButton) jButton5;
-                 f.setContentAreaFilled(false);
-                 f.setOpaque(true);
-                 
-                 AbstractButton g = (AbstractButton) jButton6;
-                 g.setContentAreaFilled(false);
-                 g.setOpaque(true);
-                 
-                 AbstractButton h = (AbstractButton) jButton7;
-                 h.setContentAreaFilled(false);
-                 h.setOpaque(true);
-                 
-                 AbstractButton i = (AbstractButton) jButton9;
-                 i.setContentAreaFilled(false);
-                 i.setOpaque(true);
-                 
-                 AbstractButton j = (AbstractButton) jButton9;
-                 j.setContentAreaFilled(false);
-                 j.setOpaque(true);
-                 
-                 AbstractButton k = (AbstractButton) jButton10;
-                 k.setContentAreaFilled(false);
-                 k.setOpaque(true);
+            Color foreground = new Color(133, 146, 249); //pressed
+            Color background = new Color(103, 116, 219); //Start color
+            Color highlight = new Color(83, 96, 199); //user on button
 
-                 AbstractButton l = (AbstractButton) jButton11;
-                 l.setContentAreaFilled(false);
-                 l.setOpaque(true);
 
-                 addFadeOnHover(jButton1, highlight, background, foreground);
-                 addFadeOnHover(jButton2, highlight, background, foreground);
-                 addFadeOnHover(jButton3, highlight, background, foreground);
-                 addFadeOnHover(jButton4, highlight, background, foreground);
-                 addFadeOnHover(jButton5, highlight, background, foreground);
-                 addFadeOnHover(jButton6, highlight, background, foreground);
-                 addFadeOnHover(jButton7, highlight, background, foreground);
-                 addFadeOnHover(jButton9, highlight, background, foreground);
-                 addFadeOnHover(jButton10, highlight, background, foreground);
-                 addFadeOnHover(jButton11, highlight, background, foreground);
-                         }
+            BasicMenuItemUI ui = new BasicMenuItemUI() {
+                {
+                    selectionForeground = foreground;
+                    selectionBackground = background;
+                }
+
+
+                public void paintBackground(Graphics g,
+                                            JMenuItem item,
+                                            Color background) {
+                    super.paintBackground(g, item, item.getBackground());
+                }
+            };
+
+            AbstractButton b = (AbstractButton) jButton1;
+            b.setContentAreaFilled(false);
+            b.setOpaque(true);
+
+            AbstractButton c = (AbstractButton) jButton2;
+            c.setContentAreaFilled(false);
+            c.setOpaque(true);
+
+            AbstractButton d = (AbstractButton) jButton3;
+            d.setContentAreaFilled(false);
+            d.setOpaque(true);
+
+            AbstractButton e = (AbstractButton) jButton4;
+            e.setContentAreaFilled(false);
+            e.setOpaque(true);
+
+            AbstractButton f = (AbstractButton) jButton5;
+            f.setContentAreaFilled(false);
+            f.setOpaque(true);
+
+            AbstractButton g = (AbstractButton) jButton6;
+            g.setContentAreaFilled(false);
+            g.setOpaque(true);
+
+            AbstractButton h = (AbstractButton) jButton7;
+            h.setContentAreaFilled(false);
+            h.setOpaque(true);
+
+            AbstractButton i = (AbstractButton) jButton9;
+            i.setContentAreaFilled(false);
+            i.setOpaque(true);
+
+            AbstractButton j = (AbstractButton) jButton9;
+            j.setContentAreaFilled(false);
+            j.setOpaque(true);
+
+            AbstractButton k = (AbstractButton) jButton10;
+            k.setContentAreaFilled(false);
+            k.setOpaque(true);
+
+            AbstractButton l = (AbstractButton) jButton11;
+            l.setContentAreaFilled(false);
+            l.setOpaque(true);
+
+            addFadeOnHover(jButton1, highlight, background, foreground);
+            addFadeOnHover(jButton2, highlight, background, foreground);
+            addFadeOnHover(jButton3, highlight, background, foreground);
+            addFadeOnHover(jButton4, highlight, background, foreground);
+            addFadeOnHover(jButton5, highlight, background, foreground);
+            addFadeOnHover(jButton6, highlight, background, foreground);
+            addFadeOnHover(jButton7, highlight, background, foreground);
+            addFadeOnHover(jButton9, highlight, background, foreground);
+            addFadeOnHover(jButton10, highlight, background, foreground);
+            addFadeOnHover(jButton11, highlight, background, foreground);
+        }
     }
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
 
     }
+
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
         grid.edit();
     }
-   
-    }
+
+}

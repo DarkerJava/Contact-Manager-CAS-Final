@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Contact_Manager_CAS_2_jar</output-path>
     <root id="archive" name="Contact Manager CAS 2.jar">
       <element id="module-output" name="Contact Manager CAS 2" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/AbsoluteLayout-RELEASE113.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
