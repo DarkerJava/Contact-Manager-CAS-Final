@@ -24,19 +24,26 @@ public class Main extends javax.swing.JFrame {
     private static final int frameCount = 8;
     private static Boolean endit = true;
 
+    /**********
+     *name: Fader
+     *description: creates the components for the animation
+     *input/output: no input, no output (void)
+     ***************************/
     private static class Fader {
-        private final Component component;
 
+        private final Component component;
         private final Color normalBackground;
+        private final float[] rgba = new float[4];
         private final float[] normalRGBA;
         private final float[] targetRGBA;
-        private final float[] rgba = new float[4];
 
+        //timer will be used to refresh the RGBvalues
         private final Timer timer = new Timer(animDurationMillis / frameCount,
                 e -> updateBackground());
 
         private int frameNumber;
 
+        //three inputs here, takes the component (i.e. a button) and the colours
         Fader(Component component2,
               Color targetBackground,
               Color normalBackground) {
@@ -47,30 +54,46 @@ public class Main extends javax.swing.JFrame {
             this.targetRGBA = targetBackground.getComponents(null);
         }
 
+        /**********
+         *name: updateBackground
+         *description: updates the background of the animated button
+         *input/output: no input, no output (void)
+         ***************************/
         private void updateBackground() {
             component.repaint();
             if (++frameNumber > frameCount) {
                 timer.stop();
                 return;
             }
-
+            //new for loop will change the RGB value until it reaches the target background
             for (int i = rgba.length - 1; i >= 0; i--) {
                 float normal = normalRGBA[i];
                 float target = targetRGBA[i];
+                //moves the rgba variable closer to the target
                 rgba[i] =
                         normal + (target - normal) * frameNumber / frameCount;
             }
-
+            //sets the background
             component.setBackground(
                     new Color(rgba[0], rgba[1], rgba[2], rgba[3]));
         }
 
+        /**********
+         *name: start
+         *description: starts the animation
+         *input/output: no input, no output (void)
+         ***************************/
         void start() {
             frameNumber = 0;
             timer.restart();
             component.setBackground(normalBackground);
         }
 
+        /**********
+         *name: stop
+         *description: ends the animation
+         *input/output: no input, no output (void)
+         ***************************/
         void stop() {
             timer.stop();
             component.setBackground(normalBackground);
@@ -81,6 +104,11 @@ public class Main extends javax.swing.JFrame {
     private static Container button;
     static Boolean stop = false;
 
+    /**********
+     *name: addFadeOnHover
+     *description: starts the animation
+     *input/output: input is the component, the normal colour, the hover colour and the clicked colour, no output (void)
+     ***************************/
     void addFadeOnHover(Component component,
                         Color targetBackground,
                         Color normalBackground, Color clickedBackground) {
@@ -90,12 +118,11 @@ public class Main extends javax.swing.JFrame {
         Fader exitFader =
                 new Fader(component, normalBackground, targetBackground);
         stop = false;
+        //new mouse listener
         component.addMouseListener(new MouseAdapter() {
-
+            //mouse is on button
             public void mouseEntered(MouseEvent event) {
-
                 exitFader.stop();
-
                 entryFader.start();
 
                 if (stop) {
@@ -103,28 +130,31 @@ public class Main extends javax.swing.JFrame {
                 }
             }
 
-
+            //mouse has left the button
             public void mouseExited(MouseEvent event) {
                 entryFader.stop();
                 exitFader.start();
             }
 
+            //button is clicked
             public void mousePressed(MouseEvent events) {
-
                 component.setBackground(clickedBackground);
-
             }
 
+            //button is click is released
             public void mouseReleased(MouseEvent s) {
-
                 exitFader.stop();
-
 
             }
 
         });
     }
 
+    /**********
+     *name: Main
+     *description: calls the initComponents method (builds the GUI)
+     *input/output: no input, no output (void)
+     ***************************/
     public Main() {
         initComponents();
 
@@ -185,19 +215,17 @@ public class Main extends javax.swing.JFrame {
         jLabel11 = new JLabel();
 
         jTextField2 = new JComboBox(Contact.CONTACT_FIELDS);
-
+        ImageIcon img = new ImageIcon(getClass().getClassLoader().getResource("NewIcons/logo.png"));
+        this.setIconImage(img.getImage());
+        this.setTitle("My Contacts Application");
 
         //Everything below was generated by NetBean's Form maker
 
         //background and foregrounds are set
-        //jTextField2.setBackground(new Color(211,182,28));
 
-        //jTextField2.setUI(ColorArrowUI.createUI(jTextField2));
         jTextField2.setForeground(Color.BLACK);
         jTextField2.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        //jTextField2.setBackground(new Color(211,182,28));
         jTextField2.setBackground(Color.YELLOW);
-
 
         jPanel5.setBackground(new Color(102, 102, 102));
         jPanel2.setBackground(new Color(40, 51, 74)); //main panel
@@ -219,9 +247,8 @@ public class Main extends javax.swing.JFrame {
                 jTextField1.setEditable(true);
                 jTextField1.getCaret().setVisible(true);
             }
-
-
         });
+
         jPanel1.setBackground(new Color(251, 222, 68)); //headers
         jPanel8.setBackground(new Color(251, 222, 68));
 
@@ -232,9 +259,7 @@ public class Main extends javax.swing.JFrame {
 
         );
         jPanel5Layout.setVerticalGroup(
-
                 jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-
         );
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -269,7 +294,7 @@ public class Main extends javax.swing.JFrame {
                                 .addComponent(jLabel2)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, 350, GroupLayout.PREFERRED_SIZE))
-                // .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MIN_VALUE))
+
         );
 
         jPanel3Layout.setVerticalGroup(
@@ -287,9 +312,7 @@ public class Main extends javax.swing.JFrame {
 
         //jPanel1 customized
         jButton1.setFont(new Font("Lucida Grande", 0, 15));
-
         jButton1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/add.png")));
-
         jButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -299,7 +322,6 @@ public class Main extends javax.swing.JFrame {
         //jButton3 customized
         jButton3.setFont(new Font("Lucida Grande", 0, 15));
         jButton3.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/edit.png")));
-
         jButton3.setContentAreaFilled(false);
         jButton3.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -311,13 +333,11 @@ public class Main extends javax.swing.JFrame {
         //jButton4 customized
         jButton4.setFont(new Font("Lucida Grande", 0, 15));
         jButton4.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/delete.png")));
-
         jButton4.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 jButton4ActionPerformed(evt);
             }
         });
-
 
         //jButton9 customized
         jButton9.setFont(new Font("Lucida Grande", 0, 13));
@@ -342,37 +362,34 @@ public class Main extends javax.swing.JFrame {
         jLabel3.setText("FIRST NAME");
         jLabel3.setAlignmentY(0.0F);
 
-        jPanel1.add(jLabel3, new AbsoluteConstraints(80, 7, -1, -1));
+        jPanel1.add(jLabel3, new AbsoluteConstraints(70, 7, -1, -1));
         jPanel1.add(jLabel4, new AbsoluteConstraints(61, 7, -1, -1));
 
         //jLabel6 customized
         jLabel6.setFont(new Font("Lucida Grande", 0, 15));
         jLabel6.setText("LAST NAME");
         jLabel6.setAlignmentY(0.0F);
-        jPanel1.add(jLabel6, new AbsoluteConstraints(250, 7, -1, -1));
+        jPanel1.add(jLabel6, new AbsoluteConstraints(195, 7, -1, -1));
 
         //jLabel7 customized
         jLabel7.setFont(new Font("Lucida Grande", 0, 15));
         jLabel7.setText("PHONE");
         jLabel7.setAlignmentY(0.0F);
-        jPanel1.add(jLabel7, new AbsoluteConstraints(580, 7, -1, -1));
+        jPanel1.add(jLabel7, new AbsoluteConstraints(550, 7, -1, -1));
 
         jLabel12.setFont(new Font("Lucida Grande", 0, 15));
         jLabel12.setText("ADDRESS");
         jLabel12.setAlignmentY(0.0F);
-        jPanel1.add(jLabel12, new AbsoluteConstraints(740, 7, -1, -1));
+        jPanel1.add(jLabel12, new AbsoluteConstraints(720, 7, -1, -1));
 
         //jLabel5 customized
         jLabel5.setFont(new Font("Lucida Grande", 0, 15));
         jLabel5.setText("EMAIL");
         jLabel5.setVerticalAlignment(SwingConstants.BOTTOM);
         jLabel5.setAlignmentY(0.0F);
-        jPanel1.add(jLabel5, new AbsoluteConstraints(430, 7, -1, -1));
-
-        //jPanel8.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
+        jPanel1.add(jLabel5, new AbsoluteConstraints(380, 7, -1, -1));
 
         jButton2.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/excel.png")));
-
         jButton7.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/close.png")));
 
         jButton2.addActionListener(new ActionListener() {
@@ -391,8 +408,6 @@ public class Main extends javax.swing.JFrame {
                     //let's try to open PDF file
                     file = new File("allcontactsvf.csv");
                     jButton2ActionPerformed(evt);
-                    //System.out.println("file open");
-
 
                     if (file.exists()) {
                         desktop.open(file);
@@ -416,12 +431,7 @@ public class Main extends javax.swing.JFrame {
 
         jLabel10.setBorder(BorderFactory.createEmptyBorder(8, 0, 7, 7));
         jLabel11.setBorder(BorderFactory.createEmptyBorder(2, 6, 7, 7));
-
-
         jLabel20.setBorder(BorderFactory.createEmptyBorder(2, 0, 7, 7));
-
-        //jButton7.setBorder(BorderFactory.createEmptyBorder(2, 0, 7, 7));
-
 
         GroupLayout jPanel8Layout = new GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -429,10 +439,9 @@ public class Main extends javax.swing.JFrame {
                 jPanel8Layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 
                         .addGroup(jPanel8Layout.createSequentialGroup()
-                                //.addContainerGap(30, Short.MAX_VALUE)
-
 
                                 .addGap(50, 50, 50)
+
                                 .addComponent(jLabel10)
                                 .addComponent(jButton5, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton6, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
@@ -448,8 +457,6 @@ public class Main extends javax.swing.JFrame {
                                 .addComponent(jLabel20, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton2, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton11, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-
-
                                 .addComponent(jButton7, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addComponent(jButton12, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
@@ -483,6 +490,8 @@ public class Main extends javax.swing.JFrame {
         jLabel10.setFont(new Font("Lucida Grande", Font.BOLD, 13));
         jButton5.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/A-Z.png")));
         jButton12.setIcon(new ImageIcon(getClass().getClassLoader().getResource("NewIcons/blank.png")));
+
+        //button borders are created (will make the animations look nicer)
         jButton5.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         jButton1.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         jButton2.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -518,25 +527,35 @@ public class Main extends javax.swing.JFrame {
         jLabel11.setFont(new Font("Lucida Grande", Font.BOLD, 13));
         jLabel20.setText("   ");
 
+        //takes the Path of the file
         File file = new File(Paths.get("allcontactsvf.csv").toString());
+
+        //if the file doesnt exist
         if (!file.exists()) {
             try {
+                //new file
                 file.createNewFile();
                 PrintWriter writer = new PrintWriter(file);
                 StringBuilder finalString = new StringBuilder();
+                //separates the fields separated by ",."
                 for (int inc = 0; inc < Contact.CONTACT_FIELDS.length - 1; inc++) {
                     finalString.append(Contact.CONTACT_FIELDS[inc]).append(",");
                 }
                 finalString.append(Contact.CONTACT_FIELDS[Contact.CONTACT_FIELDS.length - 1]).append("\n");
+                //closes writer
                 writer.println();
                 writer.close();
             } catch (IOException ioException) {
                 System.err.println("Unable to create save file.");
             }
         }
-
+        //sets the path of the file
         Path path = Paths.get("allcontactsvf.csv");
-        grid = new CSVGrid(path);
+        //creates the grid if it doesn't exist (possible because light dark mode button calls this method)
+        if (grid == null) {
+            //calls CSVGrid with the path of the file
+            grid = new CSVGrid(path);
+        }
         grid.setPreferredSize(new Dimension(grid.getPreferredSize().width, 400));
 
         //scrollbar is customized
@@ -547,13 +566,15 @@ public class Main extends javax.swing.JFrame {
         grid.getVerticalScrollBar().setUnitIncrement(8);
 
         grid.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
+
+        //if dark is true, will set dark as false and vice versa
         if (dark) {
             dark = false;
         } else {
             dark = true;
         }
+        //calls the darkLightUI method which will colour the panels properly
         darklightUI();
-
 
         //Netbeans generated code
         GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
@@ -600,7 +621,6 @@ public class Main extends javax.swing.JFrame {
                                 .addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
 
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        //  .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(grid, GroupLayout.PREFERRED_SIZE, 402, GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -626,12 +646,12 @@ public class Main extends javax.swing.JFrame {
         pack();
     }
 
+
     public static void main(String args[]) {
-
-        SplashScreen splash = new SplashScreen(2000);
-
-
+        //shows the splash screen for 7 seconds
+        SplashScreen splash = new SplashScreen(7000);
         splash.showSplash();
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -655,11 +675,10 @@ public class Main extends javax.swing.JFrame {
             public void run() {
                 Main frame = new Main();
                 frame.setVisible(true);
-                frame.setTitle("Contact Manager");
             }
         });
-    }
 
+    }
 
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -780,38 +799,51 @@ public class Main extends javax.swing.JFrame {
 
     static int repeat = 0;
 
+    /**********
+     *name: jButton11ActionPerformed
+     *description: when the dark/light mode button is called
+     *input/output: input is the button being clicked, no output (void)
+     ***************************/
     private void jButton11ActionPerformed(ActionEvent evt) {
-        stop = true;
-        repeat = 0;
 
         refresh();
 
 
     }
 
-
     static int TIMER_DELAY = 1;
 
     static Timer timer;
 
+    /**********
+     *name: refresh
+     *description: refreshes the panels to stop all the animations
+     *input/output: no input, no output (void)
+     ***************************/
     private void refresh() {
-
+        //hides the panels
         SwingUtilities.invokeLater(() -> jPanel1.setVisible(false));
-
         SwingUtilities.invokeLater(() -> jPanel2.setVisible(false));
         SwingUtilities.invokeLater(() -> jPanel3.setVisible(false));
         SwingUtilities.invokeLater(() -> jPanel5.setVisible(false));
         SwingUtilities.invokeLater(() -> jPanel8.setVisible(false));
 
+        //removes the panels
         this.getContentPane().remove(jPanel1);
         this.getContentPane().remove(jPanel2);
         this.getContentPane().remove(jPanel3);
         this.getContentPane().remove(jPanel5);
         this.getContentPane().remove(jPanel8);
-        initComponents();
-        darklightUI();
-        SwingUtilities.invokeLater(() -> jPanel1.setVisible(true));
+        this.getContentPane().remove(grid);
 
+        //calls the initComponents in an effort to repaint everything
+        initComponents();
+
+        //darkLightUI is called
+        darklightUI();
+
+        //panel are made visible
+        SwingUtilities.invokeLater(() -> jPanel1.setVisible(true));
         SwingUtilities.invokeLater(() -> jPanel2.setVisible(true));
         SwingUtilities.invokeLater(() -> jPanel3.setVisible(true));
         SwingUtilities.invokeLater(() -> jPanel5.setVisible(true));
@@ -819,10 +851,14 @@ public class Main extends javax.swing.JFrame {
 
     }
 
+    /**********
+     *name: darklightUI
+     *description: colours the GUI depending on what the user wants
+     *input/output: no input, no output (void)
+     ***************************/
     private void darklightUI() {
-
+        //if dark is true, the UI will be in light mode because dark is available
         if (dark) {
-
 
             jButton1.setBackground(new Color(251, 222, 68));
             jButton2.setBackground(new Color(251, 222, 68));
@@ -1055,9 +1091,13 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
-
     }
 
+    /**********
+     *name: jButton3ActionPerformed
+     *description: when the edit button is called
+     *input/output: input is the button being clicked, no output (void)
+     ***************************/
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
         grid.edit();
     }

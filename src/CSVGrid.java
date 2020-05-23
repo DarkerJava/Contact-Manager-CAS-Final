@@ -15,7 +15,6 @@ import java.util.Scanner;
 class CSVGrid extends JScrollPane {
     private boolean editing;
     private ArrayList<Contact> contacts;
-    //private LinkedList<Contact> contacts;
     private ArrayList<Integer> map;
     private ArrayList<Integer> mapColumns;
     private HighlightableRowsPanel content;
@@ -23,7 +22,6 @@ class CSVGrid extends JScrollPane {
     private HighlightableRowsPanel side;
     private int lineCount;
     private int headerCount;
-
     private Path path;
 
 
@@ -176,15 +174,27 @@ class CSVGrid extends JScrollPane {
                 field.addFocusListener(f);
                 field.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
                 field.setBorder(new EmptyBorder(0, 10, 0, 0));
-                field.setMinimumSize(new Dimension(160, 25));
+
                 field.setForeground(defaultFieldBackground);
-                field.setPreferredSize(new Dimension(160, 25));
+                if (j == 0) {
+                    field.setMinimumSize(new Dimension(120, 25));
+                    field.setPreferredSize(new Dimension(120, 25));
+                } else if (j == 1) {
+                    field.setMinimumSize(new Dimension(120, 25));
+                    field.setPreferredSize(new Dimension(120, 25));
+                } else if (j == 2) {
+                    field.setMinimumSize(new Dimension(200, 25));
+                    field.setPreferredSize(new Dimension(200, 25));
+                } else if (j == 3) {
+                    field.setMinimumSize(new Dimension(150, 25));
+                    field.setPreferredSize(new Dimension(150, 25));
+                } else {
+                    field.setMinimumSize(new Dimension(200, 25));
+                    field.setPreferredSize(new Dimension(200, 25));
+                }
 
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 constraints.weightx = 1;
-                if(j < 2){
-                    constraints.weightx = 0.5;
-                }
                 constraints.weighty = 1;
                 constraints.gridx = j + 1;
                 constraints.gridy = i;
@@ -280,8 +290,22 @@ class CSVGrid extends JScrollPane {
             field.setEditable(false);
             field.addFocusListener(f);
 
-            field.setMinimumSize(new Dimension(160, 25));
-            field.setPreferredSize(new Dimension(160, 25));
+            if (j == 0) {
+                field.setMinimumSize(new Dimension(120, 25));
+                field.setPreferredSize(new Dimension(120, 25));
+            } else if (j == 1) {
+                field.setMinimumSize(new Dimension(120, 25));
+                field.setPreferredSize(new Dimension(120, 25));
+            } else if (j == 2) {
+                field.setMinimumSize(new Dimension(200, 25));
+                field.setPreferredSize(new Dimension(200, 25));
+            } else if (j == 3) {
+                field.setMinimumSize(new Dimension(150, 25));
+                field.setPreferredSize(new Dimension(150, 25));
+            } else {
+                field.setMinimumSize(new Dimension(200, 25));
+                field.setPreferredSize(new Dimension(200, 25));
+            }
             field.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
             constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -532,7 +556,7 @@ class CSVGrid extends JScrollPane {
         }
     }
 
-    public void setBackground2(Color bg){
+    public void setBackground2(Color bg) {
         backgroundColor = bg;
         super.setBackground(backgroundColor);
         content.setBackground(backgroundColor);
@@ -540,46 +564,46 @@ class CSVGrid extends JScrollPane {
         top.setBackground(backgroundColor);
     }
 
-    public void setLabelColour(Color c){
+    public void setLabelColour(Color c) {
         labelColor = c;
-        lineNumbers.forEach((label) ->{
+        lineNumbers.forEach((label) -> {
             label.setForeground(labelColor);
         });
     }
 
-    public void setFieldBackground(Color c){
+    public void setFieldBackground(Color c) {
         textFieldBackgroundColor = c;
         fields.forEach((field) -> field.setBackground(textFieldBackgroundColor));
     }
 
-    public void setFieldTextColor(Color c){
+    public void setFieldTextColor(Color c) {
         defaultFieldBackground = c;
         fields.forEach((field) -> field.setForeground(defaultFieldBackground));
     }
 
-    public void setHighlightColor(Color c){
+    public void setHighlightColor(Color c) {
         content.setHighlighterColor(c);
         side.setHighlighterColor(c);
     }
 
-    public void setHighlightLabelColor(Color c){
+    public void setHighlightLabelColor(Color c) {
         highlightLabelColor = c;
-        side.rows.forEach((i) ->lineNumbers.get(i).setForeground(highlightLabelColor));
+        side.rows.forEach((i) -> lineNumbers.get(i).setForeground(highlightLabelColor));
     }
 
-    public void setCheckboxSelectedIcon(ImageIcon icon){
+    public void setCheckboxSelectedIcon(ImageIcon icon) {
         checkboxSelected = icon;
         checkboxes.forEach((checkbox) -> checkbox.setSelectedIcon(icon));
     }
 
-    public void setCheckboxDeselectedIcon(ImageIcon icon){
+    public void setCheckboxDeselectedIcon(ImageIcon icon) {
         checkboxDeselected = icon;
         checkboxes.forEach((checkbox) -> checkbox.setIcon(icon));
     }
 
-    public void setFieldEditTextColor(Color c){
+    public void setFieldEditTextColor(Color c) {
         fieldTextEditColor = c;
-        if(editing){
+        if (editing) {
             fields.forEach(field -> field.setForeground(fieldTextEditColor));
         }
     }

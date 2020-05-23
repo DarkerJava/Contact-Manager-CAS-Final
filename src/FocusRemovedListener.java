@@ -10,7 +10,7 @@ public interface FocusRemovedListener extends FocusListener {
     void focusLost(FocusEvent e);
 
     //default lets you implement what to do for all implementations of the interface. Therefore, it does not need to be explicitly implemented on every implementation.
-    default void focusGained(FocusEvent e){
+    default void focusGained(FocusEvent e) {
 
     }
 }

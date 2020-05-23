@@ -47,11 +47,11 @@ public class CustomScrollBarUI extends BasicScrollBarUI {
         if (!sb.isEnabled() || r.width > r.height) {
             return;
         } else if (isDragging) {
-            color = Color.red; // change color
+            color = new Color(60, 60, 60); // change color
         } else if (isThumbRollover()) {
-            color = new Color(251, 222, 68); // change color
+            color = new Color(80, 80, 80); // change color
         } else {
-            color = Color.GRAY; // change color
+            color = new Color(120, 120, 120); // change color
         }
         g2.setPaint(color);
         g2.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
