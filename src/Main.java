@@ -395,7 +395,6 @@ public class Main extends javax.swing.JFrame {
         jButton2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 try {
-                    File file = new File("allcontactsvf.csv");
 
                     //first check if Desktop is supported by Platform or not
                     if (!Desktop.isDesktopSupported()) {
@@ -406,7 +405,7 @@ public class Main extends javax.swing.JFrame {
                     Desktop desktop = Desktop.getDesktop();
 
                     //let's try to open PDF file
-                    file = new File("allcontactsvf.csv");
+                    File file = new File(System.getProperty("user.home") + "/allcontactsvf.csv");
                     jButton2ActionPerformed(evt);
 
                     if (file.exists()) {
@@ -528,7 +527,7 @@ public class Main extends javax.swing.JFrame {
         jLabel20.setText("   ");
 
         //takes the Path of the file
-        File file = new File(Paths.get("allcontactsvf.csv").toString());
+        File file = new File(Paths.get(System.getProperty("user.home") + "/allcontactsvf.csv").toString());
 
         //if the file doesnt exist
         if (!file.exists()) {
@@ -550,7 +549,7 @@ public class Main extends javax.swing.JFrame {
             }
         }
         //sets the path of the file
-        Path path = Paths.get("allcontactsvf.csv");
+        Path path = Paths.get(System.getProperty("user.home") + "/allcontactsvf.csv");
         //creates the grid if it doesn't exist (possible because light dark mode button calls this method)
         if (grid == null) {
             //calls CSVGrid with the path of the file
